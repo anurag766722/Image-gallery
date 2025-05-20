@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Image Gallery</title>
+<style>
+  :root {
+    --primary-color: #3a86ff;
+    --secondary-color: #8338ec;
+    --background-color: #f5f5f5;
+    --thumb-border: 3px solid var(--primary-color);
+    --thumb-border-active: 3px solid var(--secondary-color);
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--background-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 {
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  .gallery-container {
+    max-width: 900px;
+    width: 100%;
+    background: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    padding: 15px;
+  }
+  .main-image-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 60%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+  }
+  .main-image-container img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    max-width: 100%;
+    max-height: 100%;
+    transform: translate(-50%, -50%);
+    border-radius: 12px;
+    user-select: none;
+  }
+  .nav-button {
+    position: absolute;
+    top: calc(50% - 25px);
+    background: rgba(58, 134, 255, 0.8);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    user-select: none;
+  }
+  .nav-button:hover {
+    background: var(--secondary-color);
+  }
+  #prevBtn {
+    left: 15px;
+  }
+  #nextBtn {
+    right: 15px;
+  }
+  .thumbnail-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    border: var(--thumb-border);
+    transition: border-color 0.3s ease;
+    user-select: none;
+  }
+  .thumbnail.active {
+    border: var(--thumb-border-active);
+  }
+</style>
+</head>
+<body>
+
+<h1>Image Gallery</h1>
+<div class="gallery-container" aria-label="Image Gallery">
+  <div class="main-image-container">
+    <button class="nav-button" id="prevBtn" aria-label="Previous Image">&lt;</button>
+    <button class="nav-button" id="nextBtn" aria-label="Next Image">&gt;</button>
+    <img id="mainImage" src="" alt="Gallery Image" />
+  </div>
+  <div class="thumbnail-row" id="thumbnails" aria-label="Image Thumbnails">
+  </div>
+</div>
+
+<script>
+  (function() {
+    const images = [
+      {src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', alt: 'Mountain with blue sky'},
+      {src: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=800&q=80', alt: 'Forest path in autumn'},
+      {src: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=80', alt: 'Ocean and beach sunset'},
+      {src: 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=800&q=80', alt: 'City skyline at night'},
+      {src: 'https://images.unsplash.com/photo-1468071174046-657d9d351a40?auto=format&fit=crop&w=800&q=80', alt: 'Snow covered trees'},
+    ];
+
+    const mainImage = document.getElementById('mainImage');
+    const thumbnailsContainer = document.getElementById('thumbnails');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let currentIndex = 0;
+
+    function renderThumbnails() {
+      images.forEach((image, index) => {
+        const thumb = document.createElement('img');
+        thumb.src = image.src;
+        thumb.alt = image.alt;
+        thumb.className = 'thumbnail';
+        if(index === currentIndex) {
+          thumb.classList.add('active');
+        }
+        thumb.setAttribute('tabindex', 0);
+        thumb.addEventListener('click', () => {
+          currentIndex = index;
+          updateGallery();
+        });
+        thumb.addEventListener('keydown', (e) => {
+          if(e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            currentIndex = index;
+            updateGallery();
+          }
+        });
+        thumbnailsContainer.appendChild(thumb);
+      });
+    }
+
+    function updateGallery() {
+      mainImage.src = images[currentIndex].src;
+      mainImage.alt = images[currentIndex].alt;
+      // Update active thumbnail border
+      document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+        thumb.classList.toggle('active', index === currentIndex);
+      });
+    }
+
+    prevBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      updateGallery();
+    });
+    nextBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % images.length;
+      updateGallery();
+    });
+
+    // Initialize
+    renderThumbnails();
+    updateGallery();
+  })();
+</script>
+
+</body>
+</html>
+
